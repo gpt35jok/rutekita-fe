@@ -10,9 +10,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icons in Leaflet + React
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+// Ganti import lama dengan ini
+import markerIcon from 'leaflet/dist/images/marker-icon.png?url';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png?url';
 
+// Pastikan inisialisasi icon menggunakan URL tersebut
 let DefaultIcon = L.icon({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
