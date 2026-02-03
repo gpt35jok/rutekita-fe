@@ -20,10 +20,10 @@ export default function Topbar() {
         {/* Right side */}
         <div className="flex items-center gap-4 ml-auto">
           {/* Notifications */}
-          <button className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+          {/* <button className="relative flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <Bell className="h-5 w-5" />
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent" />
-          </button>
+          </button> */}
 
           {/* User */}
           <div className="flex items-center gap-3">
