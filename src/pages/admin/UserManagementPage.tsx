@@ -54,7 +54,7 @@ export default function UserManagementPage() {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+      user?.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDeleteUser = (userId: string) => {
