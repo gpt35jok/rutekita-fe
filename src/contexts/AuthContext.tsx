@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userData: User = data.user;
     
     setUser(userData);
-    localStorage.setItem('rutekita_user', JSON.stringify(data));
+    localStorage.setItem('rutekita_user', JSON.stringify(data.user));
     
     // Simpan token jika backend kamu pakai JWT
     if (data.access_token) {
