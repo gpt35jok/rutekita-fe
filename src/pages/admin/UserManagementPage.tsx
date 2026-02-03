@@ -1,20 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { mockUsers } from '@/data/mockData';
 import { User } from '@/types';
-import { Search, Plus, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, MoreVertical, Edit, Trash2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    username: '',
+    password: '',
+    role: 'admin',
+  });
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('rutekita_token');
+        const res = await fetch(`${API_URL}/admin/users`, {
+          method: 'GET',
+          headers: { 
+            'Content-Type': 'application/json', 
+            'ngrok-skip-browser-warning': 'true', 
+            'Authorization': 'Bearer '+token 
+          },
+        }); // ganti sesuai endpoint API
+        if (!res.ok) throw new Error('Failed to fetch users');
+        const json = await res.json();
+        setUsers(json.data); // ambil data dari response
+      } catch (error) {
+        console.error(error);
+        toast({
+          title: 'Error',
+          description: 'Gagal mengambil data user',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDeleteUser = (userId: string) => {
@@ -25,6 +65,39 @@ export default function UserManagementPage() {
       description: 'The user has been removed successfully.',
     });
   };
+
+  const handleAddUser = async () => {
+    try {
+      const token = localStorage.getItem('rutekita_token');
+      const res = await fetch(`${API_URL}/admin/users`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true', 
+          'Authorization': 'Bearer '+token 
+        },
+        body: JSON.stringify(newUser),
+      });
+      if (!res.ok) throw new Error('Failed to add user');
+      const json = await res.json();
+
+      // tambahkan ke list
+      setUsers([...users, json.data]);
+      setIsModalOpen(false);
+      setNewUser({ username: '', password: '', role: 'admin' });
+      toast({
+        title: 'User added',
+        description: 'User berhasil ditambahkan.',
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Error',
+        description: 'Gagal menambahkan user.',
+      });
+    }
+  };
+
 
   const toggleStatus = (userId: string) => {
     setUsers(
@@ -52,9 +125,11 @@ export default function UserManagementPage() {
               Manage system users and their roles
             </p>
           </div>
-          <button className="btn-primary">
-            <Plus className="h-5 w-5" />
-            Add User
+          <button
+            className="btn-primary flex items-center gap-2"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Plus className="h-5 w-5" /> Add User
           </button>
         </div>
 
@@ -75,7 +150,7 @@ export default function UserManagementPage() {
               <select className="input-field w-auto">
                 <option value="">All Roles</option>
                 <option value="admin">Admin</option>
-                <option value="delivery">Delivery Officer</option>
+                <option value="petugas">Delivery Officer</option>
               </select>
               <select className="input-field w-auto">
                 <option value="">All Status</option>
@@ -89,96 +164,113 @@ export default function UserManagementPage() {
         {/* Table */}
         <div className="panel-card overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                    User
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                    Email
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                    Role
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                    Created
-                  </th>
-                  <th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-medium">
-                          {user.name.charAt(0)}
-                        </div>
-                        <span className="font-medium text-foreground">{user.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <span className={`badge ${user.role === 'admin' ? 'badge-info' : 'badge-warning'}`}>
-                        {user.role === 'admin' ? 'Administrator' : 'Delivery Officer'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`badge ${
-                          user.status === 'active' ? 'badge-success' : 'bg-muted text-muted-foreground'
-                        }`}
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">{user.createdAt}</td>
-                    <td className="px-6 py-4">
-                      <div className="relative flex justify-end">
-                        <button
-                          onClick={() => setActiveMenu(activeMenu === user.id ? null : user.id)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                        {activeMenu === user.id && (
-                          <div className="absolute right-0 top-full mt-1 z-10 w-40 rounded-lg border border-border bg-card shadow-lg py-1">
-                            <button
-                              onClick={() => toggleStatus(user.id)}
-                              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted"
-                            >
-                              <Edit className="h-4 w-4" />
-                              {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteUser(user.id)}
-                              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
+            {loading ? (
+              <div className="py-12 text-center text-muted-foreground">
+                Loading users...
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="py-12 text-center text-muted-foreground">
+                No users found matching your criteria.
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                      User
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <span className="font-medium text-foreground">{user.username}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`badge ${user.role === 'admin' ? 'badge-info' : 'badge-warning'}`}>
+                          {user.role === 'admin' ? 'Administrator' : 'Delivery Officer'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="relative flex justify-end">
+                          <button
+                            onClick={() => setActiveMenu(activeMenu === user.id ? null : user.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                          {activeMenu === user.id && (
+                            <div className="absolute right-0 top-full mt-1 z-10 w-40 rounded-lg border border-border bg-card shadow-lg py-1">
+                              <button
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
-          {filteredUsers.length === 0 && (
-            <div className="py-12 text-center text-muted-foreground">
-              No users found matching your criteria.
-            </div>
-          )}
         </div>
       </div>
+
+     {/* Modal Add User */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-card p-6 shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Add User</h2>
+              <button onClick={() => setIsModalOpen(false)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-4">
+              <input
+                type="text"
+                placeholder="Username"
+                value={newUser.username}
+                onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                className="input-field"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                className="input-field"
+              />
+              <select
+                value={newUser.role}
+                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                className="input-field"
+              >
+                <option value="admin">Admin</option>
+                <option value="petugas">Petugas</option>
+              </select>
+              <button
+                onClick={handleAddUser}
+                className="btn-primary mt-2"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

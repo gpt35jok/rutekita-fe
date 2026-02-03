@@ -1,9 +1,8 @@
-export type UserRole = 'admin' | 'delivery';
+export type UserRole = 'admin' | 'petugas';
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
+  username: string;
   role: UserRole;
   createdAt: string;
   status: 'active' | 'inactive';

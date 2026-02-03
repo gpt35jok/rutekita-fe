@@ -34,18 +34,18 @@ const navItems: NavItem[] = [
     icon: <Users className="w-5 h-5" />,
     roles: ['admin'],
   },
-  {
-    label: 'Customers',
-    path: '/customers',
-    icon: <Building2 className="w-5 h-5" />,
-    roles: ['admin'],
-  },
-  {
-    label: 'Map Config',
-    path: '/map-config',
-    icon: <Settings className="w-5 h-5" />,
-    roles: ['admin'],
-  },
+  // {
+  //   label: 'Customers',
+  //   path: '/customers',
+  //   icon: <Building2 className="w-5 h-5" />,
+  //   roles: ['admin'],
+  // },
+  // {
+  //   label: 'Map Config',
+  //   path: '/map-config',
+  //   icon: <Settings className="w-5 h-5" />,
+  //   roles: ['admin'],
+  // },
   {
     label: 'Route Search',
     path: '/route-search',
