@@ -35,7 +35,7 @@ export default function RegisterPage() {
           title: 'Account created!',
           description: 'Welcome to RuteKita.',
         });
-        navigate(role === 'admin' ? '/dashboard' : '/route-search');
+        navigate(role === 'admin' ? '/login' : '/login');
       } else {
         setError('Email already exists. Please use a different email.');
       }
@@ -183,9 +183,9 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setRole('delivery')}
+                  onClick={() => setRole('petugas')}
                   className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
-                    role === 'delivery'
+                    role === 'petugas'
                       ? 'border-primary bg-primary/5 text-primary'
                       : 'border-border text-muted-foreground hover:border-primary/50'
                   }`}

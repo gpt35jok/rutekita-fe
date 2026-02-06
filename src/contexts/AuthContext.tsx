@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             'Content-Type': 'application/json',
             'ngrok-skip-browser-warning': 'true'
           },
-          body: JSON.stringify({ name, email, password, role }),
+          body: JSON.stringify({ username: name, email, password, role }),
         });
 
         if (!response.ok) throw new Error('Registration failed');
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData: User = data.user;
     
         setUser(userData);
-        localStorage.setItem('rutekita_user', JSON.stringify(userData));
+        // localStorage.setItem('rutekita_user', JSON.stringify(userData));
         return true;
       } catch (error) {
         console.error("Register Error:", error);
