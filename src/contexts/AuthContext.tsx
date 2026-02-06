@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-      body: JSON.stringify({ username: email, password }),
+      body: JSON.stringify({ email: email, password }),
     });
 
     if (!response.ok) throw new Error('Login failed');
@@ -50,9 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (name: string, email: string, password: string, role: UserRole): Promise<boolean> => {
       try {
-        const response = await fetch(`${API_URL}/register`, {
+        const response = await fetch(`${API_URL}/auth/register`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+          },
           body: JSON.stringify({ name, email, password, role }),
         });
 
@@ -60,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const data = await response.json();
         const userData: User = data.user;
-
+    
         setUser(userData);
         localStorage.setItem('rutekita_user', JSON.stringify(userData));
         return true;

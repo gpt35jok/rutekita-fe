@@ -3,6 +3,7 @@ export type UserRole = 'admin' | 'petugas';
 export interface User {
   id: string;
   username: string;
+  email: string;
   role: UserRole;
   createdAt: string;
   status: 'active' | 'inactive';
