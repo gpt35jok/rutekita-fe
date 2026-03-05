@@ -17,6 +17,7 @@ export default function UserManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     username: '',
+    email: '',
     password: '',
     role: 'admin',
   });
@@ -244,6 +245,13 @@ export default function UserManagementPage() {
                 placeholder="Username"
                 value={newUser.username}
                 onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                className="input-field"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                 className="input-field"
               />
               <input
